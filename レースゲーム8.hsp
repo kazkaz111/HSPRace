@@ -1,0 +1,352 @@
+#include "hspogg.as"
+title "ÉåÅ[ÉXÉQÅ[ÉÄ"
+mouse -1
+sx=ginfo_dispx
+sy=ginfo_dispy
+bgscr 0,sx,sy,,0,0
+;screen 0,sx,sy,,0,0
+color 255,0,0
+boxf
+color 0,255,0
+pos sx/2-70,sy/2-10
+mes "now loading...."
+
+dmmini
+dmmload "enghi.wav",0,1
+dmmload "englo.wav",1,1
+dmmload "goal.wav",2,0
+snd_f=0
+
+mmload "kazushi_band2.mp3",0,1
+mmplay 0
+
+celload "car_red.bmp",4
+celload "car_blue.bmp",5
+celload "corse4a.bmp",3
+
+gsel 3
+mapx=ginfo(26)
+mapy=ginfo(27)
+gsel 0
+
+gsel 4
+chrx=ginfo(26)
+chry=ginfo(27)
+gsel 0
+
+rad=m_pi/2
+x=4085.0
+y=1240.0
+movex=0.0
+movey=0.0
+
+trad=m_pi/2
+tx=4095.0
+ty=1420.0
+tmovex=0.0
+tmovey=0.0
+
+t_atari=0.0
+atari=0.0
+
+repeat 70
+color 255-(cnt*2),0,0
+boxf
+await 1
+loop
+
+ru=0
+rd=0
+lu=0
+rd=0
+time=0
+
+tru=0
+trd=0
+tlu=0
+trd=0
+
+gmode 2,chrx,chry
+
+;dmmplay 0
+snd_m=1
+
+st_c=3
+
+
+*drawloop
+	
+	redraw 0
+	color 0,0,0
+	boxf
+	pos 0,0
+	gcopy 3,x-(sx/2),y-(sy/2),sx,sy
+	pos sx/2,sy/2
+	grotate 5,0,0,rad,chrx,chry
+
+
+	ppx=(sx/2)-(x-tx) : ppy=(sy/2)-(y-ty)
+	if ((0-80)<ppx<(sx+80)) and ((0-80)<ppy<(sy+80)){
+		pos ppx,ppy
+		grotate 4,0,0,trad,chrx,chry
+	}
+	
+	color 0,0,0
+	pos 0,0
+	mes "x="+x+"  y="+y
+	mes "rad="+rad
+	mes "cr="+cr+"  cg="+cg+"  cb="+cb
+	mes "lu="+lu+"  ld="+ld+"  ru="+ru+"  rd="+rd
+	mes "sx="+sx+"  sy="+sy
+	mes "tx="+tx+"  ty="+ty
+	mes "ppx="+ppx+"  ppy"+ppy
+	mes "time="+time
+	if atari_f=1 : mes "atari"
+	
+	redraw 1
+
+	if st_c>0: color 255,0,0 : pos sx/2-70,sy/2-10 : mes "-- "+st_c+" --" : wait 100 : st_c-- :goto *drawloop
+
+	
+
+	//snd
+	
+	if snd_f ! snd_m {
+		dmmstop snd_m
+		dmmplay snd_f
+		snd_m=snd_f
+	}
+	
+	stick kk,$ff,1
+	getkey brake,66
+
+	if kk&1 : rad-=0.07
+	if kk&4 : rad+=0.07
+
+	movex=movex*0.95
+	movey=movey*0.95
+
+	if brake=1{
+		movex=movex*0.965
+		movey=movey*0.965
+	}
+
+
+	if kk&16{
+		movex+=sin(rad)*2
+		movey-=cos(rad)*2
+		snd_f=0
+	}else : snd_f=1
+
+	if kk&128 : end
+
+	if cr=102 and cg=255 and cb=102{
+		movex=movex*0.93
+		movey=movey*0.93
+	}
+
+
+	gsel 3
+	pget x,y
+	cr=ginfo_r
+	cg=ginfo_g
+	cb=ginfo_b
+	color 255,255,255
+	gsel 0
+
+	if (x<(mapx/2)) and (y<(mapy/2)) : lu=1
+	if (x<(mapx/2)) and (y>(mapy/2)) : ld=1
+	if (x>(mapx/2)) and (y<(mapy/2)) : ru=1
+	if (x>(mapx/2)) and (y>(mapy/2)) : rd=1
+
+	if cr=0 and cg=0 and cb=0 and lu=1 and ld=1 and ru=1 and rd=1 {
+		dmmstop -1
+		dmmplay 2
+		dialog "GOAL\ntime="+time,0,"GOAL"
+		end
+	}
+		
+
+
+	
+
+	gsel 3
+	pget x+(movex*3),y
+	xr=ginfo_r
+	xg=ginfo_g
+	xb=ginfo_b
+	if xr=102 and xg=153 and xb=102 {
+		x-=movex
+	}else{
+		x+=movex
+	}
+	pget x,y+(movey*3)
+	yr=ginfo_r
+	yg=ginfo_g
+	yb=ginfo_b
+	if yr=102 and yg=153 and yb=102 {
+		y-=movey
+	}else{
+		y+=movey
+	}
+		
+	color 255,255,255
+	gsel 0
+
+	x=limitf(x,0,mapx)
+	y=limitf(y,0,mapy)
+
+	time++
+
+/////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////
+	i=0
+	hr=0
+	hg=0
+	hb=0
+	gsel 3
+
+	repeat
+	if hr=102 and hg=153 and hb=102 : break
+	i+=2
+	pget tx+(sin(trad-(m_pi/5.5))*i),ty-(cos(trad-(m_pi/5.5))*i)
+	hr=ginfo_r
+	hg=ginfo_g
+	hb=ginfo_b
+	;await 1
+	loop
+	
+	rr=i
+	i=0
+	hr=0
+	hg=0
+	hb=0
+	
+	repeat
+	if hr=102 and hg=153 and hb=102 : break
+	i+=2
+	pget tx+(sin(trad+(m_pi/5.5))*i),ty-(cos(trad+(m_pi/5.5))*i)
+	hr=ginfo_r
+	hg=ginfo_g
+	hb=ginfo_b
+	;await 1
+	loop
+	
+	ll=i
+
+	if tcr=102 and tcg=255 and tcb=102{
+		if rr>ll : trad-=0.07 
+		if rr<ll : trad+=0.07 
+	}else{
+		if rr>ll : trad-=0.07
+		if rr<ll : trad+=0.07
+	}
+
+	;if tcr=102 and tcg=255 and tcb=102{
+	;	if rr>ll+400 : br_swich+=2
+	;	if rr<ll-400 : br_swich-=2
+	;}else{
+	;	if rr>ll+400 : br_swich+=2
+	;	if rr<ll-400 : br_swich-=2
+
+	;if 0>br_switch : br_swich++
+	;if 0<br_switch : br_swich--
+	
+//////////////////////////////////////////////////
+
+	gsel 0
+
+	tmovex=tmovex*0.95
+	tmovey=tmovey*0.95
+
+	;if  (br_swich<-40 or br_swich>40) : tim++ :else : tim--
+	;if tim<0 : tim=0
+	;if tim>10{
+	;	tmovex=tmovex*0.97
+	;	tmovey=tmovey*0.97
+	;	bmes=1
+	;}else : bmes=0
+
+
+	;if kk&16{
+		tmovex+=sin(trad)*2
+		tmovey-=cos(trad)*2
+	;}
+
+	if tcr=102 and tcg=255 and tcb=102{
+		tmovex=tmovex*0.93
+		tmovey=tmovey*0.93
+	}
+
+
+	gsel 3
+	pget tx,ty
+	tcr=ginfo_r
+	tcg=ginfo_g
+	tcb=ginfo_b
+
+	gsel 0
+
+	if (tx<(mapx/2)) and (ty<(mapy/2)) : tlu=1
+	if (tx<(mapx/2)) and (ty>(mapy/2)) : tld=1
+	if (tx>(mapx/2)) and (ty<(mapy/2)) : tru=1
+	if (tx>(mapx/2)) and (ty>(mapy/2)) : trd=1
+
+	if tcr=0 and tcg=0 and tcb=0 and tlu=1 and tld=1 and tru=1 and trd=1 {
+		dialog "LOSE\ntime="+time,0,"LOSE"
+		end
+	}
+
+
+	
+
+	gsel 3
+	pget tx+(tmovex*3),ty
+	txr=ginfo_r
+	txg=ginfo_g
+	txb=ginfo_b
+	if txr=102 and txg=153 and txb=102 {
+		tx-=tmovex
+	}else{
+		tx+=tmovex
+	}
+	pget tx,ty+(tmovey*3)
+	tyr=ginfo_r
+	tyg=ginfo_g
+	tyb=ginfo_b
+	if tyr=102 and tyg=153 and tyb=102 {
+		ty-=tmovey
+	}else{
+		ty+=tmovey
+	}
+		
+
+	gsel 0
+
+	tx=limitf(tx,0,mapx)
+	ty=limitf(ty,0,mapy)
+
+///////////////////////////////ìñÇΩÇËèàóù
+
+if ((x+60.0)>tx) and ((x-60.0)<tx) and ((y+60.0)>ty) and ((y-60.0)<ty){
+
+	atari_f=1
+	t_atri=atan(ty-y,tx-x)+(m_pi/2)
+	tx+=sin(t_atari)*20
+	ty-=cos(t_atari)*20
+	tmovex+=sin(t_atari)*10
+	tmovey-=cos(t_atari)*10
+
+	;atri=atan(y-ty,x-tx)+(m_pi/4)
+	atari=t_atari+m_pi
+	x+=sin(atari)*20
+	y-=cos(atari)*20
+	movex+=sin(atari)*10
+	movey-=cos(atari)*10
+	
+}else {
+	atari_f=0
+}
+	await 20
+	goto *drawloop
